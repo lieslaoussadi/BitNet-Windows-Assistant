@@ -58,3 +58,9 @@ Application locale pour chat autour de **BitNet-b1.58-2B-4T**, avec RAG document
 
 ## Attribution
 BitNet Windows Assistant — contributions Beam & ChatGPT selon les discussions de projet (open source spirit). 
+## Runtime inclus / exclu
+- `BitNet-runtime/bin/` est suivi directement dans le depot.
+- `BitNet-runtime/models/` est ignore (gitignore). Telecharger le modele GGUF i2_s via Hugging Face.
+- Emplacement attendu :
+  - BitNet-runtime/bin/llama-completion.exe
+  - BitNet-runtime/models/BitNet-b1.58-2B-4T/ggml-model-i2_s.gguf
