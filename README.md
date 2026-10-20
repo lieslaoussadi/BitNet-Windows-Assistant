@@ -1,4 +1,4 @@
-# BitNet Windows Assistant (v0.7.17-dev)
+﻿# BitNet Windows Assistant (v0.7.19-dev)
 
 Application locale pour chat autour de **BitNet-b1.58-2B-4T**, avec RAG documents, souvenirs, résumés, export local et moteur **llama.cpp**.
 
@@ -6,7 +6,7 @@ Application locale pour chat autour de **BitNet-b1.58-2B-4T**, avec RAG document
 - `BitNet-runtime\` (pour BitNet)  
   - `bin\llama-completion.exe`
   - `models\BitNet-b1.58-2B-4T\ggml-model-i2_s.gguf`
-- `BitNet-Windows-Assistant-v0.7.17-dev\dist\BitNetWindowsAssistant\BitNetWindowsAssistant.exe` (l'application)
+- `BitNet-Windows-Assistant-v0.7.19-dev\dist\BitNetWindowsAssistant\BitNetWindowsAssistant.exe` (l'application)
 
 ## Vérification moteur (une fois)
 1. Ouvrir `Moteur et modèles...`
@@ -38,7 +38,7 @@ Application locale pour chat autour de **BitNet-b1.58-2B-4T**, avec RAG document
 2. **Composants indispensables**  
    `BitNet-runtime\bin\llama-completion.exe`  
    `BitNet-runtime\models\BitNet-b1.58-2B-4T\ggml-model-i2_s.gguf`  
-   `BitNet-Windows-Assistant-v0.7.17-dev\dist\BitNetWindowsAssistant\BitNetWindowsAssistant.exe`
+   `BitNet-Windows-Assistant-v0.7.19-dev\dist\BitNetWindowsAssistant\BitNetWindowsAssistant.exe`
 3. **Vérification une fois**
    - *Moteur et modèles...*
    - importer les chemins ci-dessus
