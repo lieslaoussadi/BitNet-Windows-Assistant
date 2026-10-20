@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Large or private runtime/model artefacts
+BitNet-runtime/
+BitNet-runtime-bf16/
+models/
+Archive/
+
+# PyInstaller outputs
+build/
+dist/
+*_internal/
+
+# Tooling caches
+.cache/
+*.log
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+desktop.ini

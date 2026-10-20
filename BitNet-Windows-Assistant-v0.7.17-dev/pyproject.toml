@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bitnet-windows-assistant"
+version = "0.7.17.dev0"
+description = "A local-first BitNet Windows assistant with local-first chat, Web search, bilingual UI and document retrieval in development"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "BitNet Windows Assistant contributors" }]
+dependencies = []
+
+[project.scripts]
+bitnet-windows = "bitnet_windows.cli:main"
+bitnet-chat = "bitnet_windows.chat_gui:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

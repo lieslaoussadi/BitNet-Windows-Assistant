@@ -1,0 +1,65 @@
+{
+  "default_source": "Base documentaire interne",
+  "chunks": [
+    {
+      "topic": "Maths",
+      "text": "Question mathematique : que vaut 2 + 2 ? Reponse exacte : 4. Addition simple elementaire."
+    },
+    {
+      "topic": "Maths",
+      "text": "Multiplication simple : 6 x 7 = 42. Une verification par addition repetee donne 42."
+    },
+    {
+      "topic": "Maths",
+      "text": "Formule du theoreme de Pythagore : pour un triangle rectangle, a^2 + b^2 = c^2 (c hypotenuse)."
+    },
+    {
+      "topic": "Maths",
+      "text": "Pour convertir une fraction en pourcentage, multiplier par 100. Exemple : 1/4 = 25%."
+    },
+    {
+      "topic": "Maths",
+      "text": "Moyenne arithmetique : somme des valeurs divisee par le nombre de valeurs."
+    },
+    {
+      "topic": "Cuisine",
+      "text": "Pate a crepes de base : 100 g de farine, 2 oeufs, 250 ml de lait, une pincee de sel. Laisser reposer 30 minutes."
+    },
+    {
+      "topic": "Cuisine",
+      "text": "Sauce bechamel : beurre + farine en quantites egales, puis lait, fouetter jusqu'a epaississement."
+    },
+    {
+      "topic": "Cuisine",
+      "text": "Cuisson des pates : maintenir une eau bouillante salee aux al dente, puis egoutter."
+    },
+    {
+      "topic": "Patisserie",
+      "text": "Genoise : oeufs + sucre fouettes, farine puis four 180 degres Celsius environ 25 minutes."
+    },
+    {
+      "topic": "Patisserie",
+      "text": "Macarons : blancs d'oeufs, sucre glace + poudre d'amande, croutage puis cuisson douce."
+    },
+    {
+      "topic": "Patisserie",
+      "text": "Creme patissiere : jaunes, sucre, farine, lait chaud, cuire sans bouillir pour eviter les grumeaux."
+    },
+    {
+      "topic": "Francais",
+      "text": "Au singularise masculin: un, au (le), du. Au feminin: une, la, de la."
+    },
+    {
+      "topic": "Francais",
+      "text": "Exceptions du participe passe: etre + participe accorde ; avoir sans accord sauf COD place avant."
+    },
+    {
+      "topic": "Francais",
+      "text": "Pluriel habituel des noms et adjectifs : ajouter s (ex. chat -> chats), exceptions en -x pour certains noms."
+    },
+    {
+      "topic": "Francais",
+      "text": "Les adjectifs s'accordent en genre et nombre avec le nom qu'ils qualifient: grand / grande."
+    }
+  ]
+}
