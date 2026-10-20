@@ -1,4 +1,4 @@
-"""Style-C local chat and lexical RAG interface for BitNet Windows Assistant.
+﻿"""Style-C local chat and lexical RAG interface for BitNet Windows Assistant.
 
 Local chat and PDF/text retrieval are connected. OCR/image understanding and web
 search remain unimplemented and are never represented as active features.
@@ -56,7 +56,7 @@ COLORS = {
     "blue_hover": "#1D4ED8",
     "blue_light": "#EFF6FF",
     "purple": "#7C3AED",
-    "bg": "#F1F5F9",
+    "bg": "#F8FAFC",
     "white": "#FFFFFF",
     "text": "#0F172A",
     "muted": "#64748B",
@@ -65,7 +65,7 @@ COLORS = {
     "success_bg": "#D1FAE5",
     "warning": "#D97706",
     "warning_bg": "#FEF3C7",
-    "assistant_bg": "#F8FAFC",
+    "assistant_bg": "#FBFCFD",
     "selection": "#2563EB",
 }
 
@@ -222,6 +222,7 @@ class ChatAssistantWindow:
         self.active_section = "Conversations"
         self.show_recent_var = tk.BooleanVar(value=True)
         self.rag_index_engine_var = tk.StringVar(value="lexical")
+        self.planning_mode_var = tk.BooleanVar(value=False)
         self.current_tab = "sources"
         self.theme_var = tk.StringVar(value="light")
         self._build_styles()
@@ -644,17 +645,30 @@ class ChatAssistantWindow:
         controls.pack(fill="x")
         self._button(controls, "＋ Joindre PDF / image / texte", self.choose_files, compact=True).pack(side="left", padx=(0, 4))
         self.rag_check = tk.Checkbutton(
-            controls, text="Utiliser le RAG", variable=self.rag_enabled, command=self._refresh_mode_status,
+            controls, text="RAG", variable=self.rag_enabled, command=self._refresh_mode_status,
             bg=COLORS["white"], activebackground=COLORS["white"], fg=COLORS["text"],
             selectcolor=COLORS["blue_light"], font=("Segoe UI", 10), cursor="hand2",
         )
         self.rag_check.pack(side="left", padx=5)
         self.web_check = tk.Checkbutton(
-            controls, text="Recherche Internet", variable=self.web_enabled, command=self._refresh_mode_status,
+            controls, text="Web", variable=self.web_enabled, command=self._refresh_mode_status,
             bg=COLORS["white"], activebackground=COLORS["white"], fg=COLORS["text"],
             selectcolor=COLORS["blue_light"], font=("Segoe UI", 10), cursor="hand2",
         )
         self.web_check.pack(side="left", padx=5)
+        self.plan_check = tk.Checkbutton(
+            controls,
+            text="Plan",
+            variable=self.planning_mode_var,
+            command=self._save_planning_mode,
+            bg=COLORS["white"],
+            activebackground=COLORS["white"],
+            fg=COLORS["text"],
+            selectcolor=COLORS["blue_light"],
+            font=("Segoe UI", 10),
+            cursor="hand2",
+        )
+        self.plan_check.pack(side="left", padx=5)
         self.send_button = self._button(controls, "➤ Envoyer", self.send_message, primary=True, compact=True)
         self.send_button.configure(cursor="hand2")
         self.send_button.pack(side="right", padx=(5, 0))
@@ -802,6 +816,7 @@ class ChatAssistantWindow:
         try:
             self.memories_enabled_var.set(self.store.get_setting("memories_enabled", "1") != "0")
             self.show_recent_var.set(self.store.get_setting("show_recent_chats", "1") != "0")
+            self.planning_mode_var.set(self.store.get_setting("planning_mode", "0") == "1")
             saved_engine = self.store.get_setting("rag_index_engine", "lexical")
             if saved_engine not in ("lexical", "hnsw"):
                 saved_engine = "lexical"
@@ -1419,7 +1434,20 @@ class ChatAssistantWindow:
             prompt += "\n\nConsigne : réponds dans la langue de la question. Utilise uniquement les informations réellement présentes dans les résultats ci-dessous, signale les incertitudes, ne prétends pas avoir lu les pages entières et cite les références [W1], [W2], etc."
             if any(term in message.casefold() for term in ("météo", "meteo", "weather", "prévision météo", "forecast")):
                 prompt += " Pour une question météo, distingue clairement la date demandée, la ville, les températures minimale et maximale, les conditions et le risque de précipitations. Ne transforme pas des températures isolées en prévision horaire et n'invente aucune valeur si les extraits ne la donnent pas."
-        answer = generate_response(config, history, prompt, context=combined_context, memory_context=memory_context)
+        if self.planning_mode_var.get():
+            planning_message = "Mode plan (experimental) : etablis 3 sous-etapes courtes, puis une proposition de reponse finale.\nQuestion : " + message
+            plan = generate_response(
+                config,
+                history,
+                (system_prompt + "\n\n" if system_prompt else "") + planning_message,
+                context=combined_context,
+                memory_context=memory_context,
+            )
+            prompt = (system_prompt + "\n\n" if system_prompt else "") + message + "\n\nPlan interne : " + plan + "\nReponds maintenant de facon concise, fondree, et sans inventer."
+            answer = generate_response(config, history, prompt, context=combined_context, memory_context=memory_context)
+            answer = answer.rstrip() + "\n\n---\nPlan agent local (experimental) :\n" + plan
+        else:
+            answer = generate_response(config, history, prompt, context=combined_context, memory_context=memory_context)
         if web_results:
             answer = answer.rstrip() + "\n\n" + format_web_references(web_results)
         return {"answer": answer, "sources": rag_hits, "web_results": web_results}
@@ -2103,7 +2131,7 @@ class ChatAssistantWindow:
                 "memory toggle, and theme. HNSW stays off by default on lower-RAM systems.\n\n"
                 "10. Privacy\n"
                 "No cloud AI API is used. Documents stay on this PC. "
-                "Optional web search is always explicit and shows its sources."
+                "Optional web search is always explicit and shows its sources. The Plan toggle is local, does not expose the UI clock, and should stay disabled for normal answers."
             )
         else:
             body = (
@@ -2141,7 +2169,7 @@ class ChatAssistantWindow:
                 "HNSW reste volontaire et se replie sur lexical si le PC est faible.\n\n"
                 "10. Vie privée et sécurité\n"
                 "Aucune API IA distante n’est appelée. Les données restent sur ce PC. "
-                "La recherche Web est toujours volontaire et affiche ses références. "
+                "La recherche Web est toujours volontaire et affiche ses références. La case Plan est locale, l'horloge UI n'est pas transmise, elle devrait rester désactivée pour les réponses normales. "
                 "Vérifie les nombres et données critiques avant utilisation."
             )
         messagebox.showinfo(title, body, parent=self.root)
@@ -2247,6 +2275,14 @@ class ChatAssistantWindow:
         )
         recent_check.pack(anchor="w", padx=18, pady=(0, 10))
 
+        self.planning_check = ttk.Checkbutton(
+            card,
+            text=("Plan mode agent (experimental)" if is_en else "Mode agent plan (expérimental, BitNet local)"),
+            variable=self.planning_mode_var,
+            command=self._save_planning_mode,
+        )
+        self.planning_check.pack(anchor="w", padx=18, pady=(0, 10))
+
         self._label(card, "Moteur d’index RAG" if not is_en else "RAG Index Engine", font=("Segoe UI", 10, "bold")).pack(anchor="w", padx=18, pady=(8, 4))
         engine_row = tk.Frame(card, bg=COLORS["white"])
         engine_row.pack(anchor="w", padx=18, pady=(0, 8))
@@ -2277,7 +2313,7 @@ class ChatAssistantWindow:
         self.system_prompt_text.pack(fill="x", padx=18, pady=(0, 5))
         default_prompt = ((getattr(self.engine_config, "system_prompt", "") if self.engine_config else "") or DEFAULT_SYSTEM_PROMPT)
         self.system_prompt_text.insert("1.0", default_prompt)
-        self._label(card, "Appliqué à chaque réponse. L’heure affichée dans l’interface n’est pas transmise au modèle." if not is_en else "Applied to each answer. The UI clock is not sent to the model.", fg=COLORS["muted"], wraplength=540, justify="left").pack(anchor="w", padx=18, pady=(0, 5))
+        
         self._button(card, "Save assistant instructions" if is_en else "Enregistrer les instructions", lambda: self._save_system_prompt(), primary=True).pack(anchor="w", padx=18, pady=(0, 10))
 
         db_path = default_database_path()
@@ -2374,6 +2410,13 @@ class ChatAssistantWindow:
             )
         return chunks
 
+    def _save_planning_mode(self) -> None:
+        if self.store is not None:
+            try:
+                self.store.set_setting("planning_mode", "1" if self.planning_mode_var.get() else "0")
+            except Exception:
+                pass
+
     def _apply_recent_visibility(self) -> None:
         """Show or hide the optional recent-chat list without deleting any sessions."""
         if self.show_recent_var.get():
@@ -2446,8 +2489,8 @@ class ChatAssistantWindow:
             return
         self.ui_language = "en" if self.language_combo.get() == "English" else "fr"
         translations = {
-            "fr": {"+  Nouvelle session":"+  New conversation", "▤  Conversations":"Chats", "✦  Souvenirs":"Mém.", "▣  RAG":"RAG", "⚙  Paramètres":"Régl.", "⌁  Diagnostics":"Diag.", "ⓘ  À propos":"À prop.", "CHATS RÉCENTS":"RECENT CHATS", "Nouvelle session":"New conversation", "Moteur et modèles…":"Engine and models…", "＋ Joindre PDF / image / texte":"＋ Attach PDF / image / text", "Utiliser le RAG":"Use local RAG", "Recherche Internet":"Web search", "Envoyer  ➤":"Send  ➤", "Sources et documents":"Sources and documents", "Sources utilisées":"Used sources", "Documents":"Documents", "Aucune source utilisée":"No sources used", "Entrée : envoyer  •  Maj+Entrée : nouvelle ligne":"Enter: send  •  Shift+Enter: new line", "Écrivez votre message ici…":"Type your message here…", "Discussion générale":"General chat", "Moteur non connecté":"Engine not connected", "Prêt. Moteur de chat non connecté.":"Ready. Chat engine not connected."},
-            "en": {"+  New conversation":"+  Nouvelle session", "▤  Chats":"Chats", "✦  Memories":"Mem.", "▣  RAG":"RAG", "⚙  Settings":"Settings", "⌁  Diagnostics":"Diag.", "ⓘ  About":"About", "RECENT CHATS":"CHATS RÉCENTS", "New conversation":"Nouvelle session", "Engine and models…":"Moteur et modèles…", "＋ Attach PDF / image / text":"＋ Joindre PDF / image / texte", "Use local RAG":"Utiliser le RAG", "Web search":"Recherche Internet", "Send  ➤":"Envoyer  ➤", "Sources and documents":"Sources et documents", "Used sources":"Sources utilisées", "No sources used":"Aucune source utilisée", "Enter: send  •  Shift+Enter: new line":"Entrée : envoyer  •  Maj+Entrée : nouvelle ligne", "Type your message here…":"Écrivez votre message ici…", "General chat":"Discussion générale", "Engine not connected":"Moteur non connecté", "Ready. Chat engine not connected.":"Prêt. Moteur de chat non connecté."}
+            "fr": {"+  Nouvelle session":"+  New conversation", "▤  Conversations":"Chats", "✦  Souvenirs":"Mém.", "▣  RAG":"RAG", "⚙  Paramètres":"Régl.", "⌁  Diagnostics":"Diag.", "ⓘ  À propos":"À prop.", "CHATS RÉCENTS":"RECENT CHATS", "Nouvelle session":"New conversation", "Moteur et modèles…":"Engine and models…", "＋ Joindre PDF / image / texte":"＋ Attach PDF / image / text", "RAG":"Use local RAG", "Web":"Web search", "Envoyer  ➤":"Send  ➤", "Sources et documents":"Sources and documents", "Sources utilisées":"Used sources", "Documents":"Documents", "Aucune source utilisée":"No sources used", "Entrée : envoyer  •  Maj+Entrée : nouvelle ligne":"Enter: send  •  Shift+Enter: new line", "Écrivez votre message ici…":"Type your message here…", "Discussion générale":"General chat", "Moteur non connecté":"Engine not connected", "Prêt. Moteur de chat non connecté.":"Ready. Chat engine not connected."},
+            "en": {"+  New conversation":"+  Nouvelle session", "▤  Chats":"Chats", "✦  Memories":"Mem.", "▣  RAG":"RAG", "⚙  Settings":"Settings", "⌁  Diagnostics":"Diag.", "ⓘ  About":"About", "RECENT CHATS":"CHATS RÉCENTS", "New conversation":"Nouvelle session", "Engine and models…":"Moteur et modèles…", "＋ Attach PDF / image / text":"＋ Joindre PDF / image / texte", "Use local RAG":"RAG", "Web search":"Web", "Send  ➤":"Envoyer  ➤", "Sources and documents":"Sources et documents", "Used sources":"Sources utilisées", "No sources used":"Aucune source utilisée", "Enter: send  •  Shift+Enter: new line":"Entrée : envoyer  •  Maj+Entrée : nouvelle ligne", "Type your message here…":"Écrivez votre message ici…", "General chat":"Discussion générale", "Engine not connected":"Moteur non connecté", "Ready. Chat engine not connected.":"Prêt. Moteur de chat non connecté."}
         }
         mapping = translations["fr" if self.ui_language == "en" else "en"]
         # Toggle the labels in place. Store the original label once per widget so

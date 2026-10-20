@@ -1,4 +1,4 @@
-# BitNet Windows Assistant — v0.5.1-dev
+﻿# BitNet Windows Assistant — v0.5.1-dev
 
 Windows-first, open-source prototype for chatting with a locally configured Microsoft BitNet/llama.cpp CLI. This development snapshot adds targeted document reindexing and safe index deletion on top of persistent local conversations, user-controlled persistent memories, a persistent lexical RAG index and high-contrast free text selection. It is not a final installer or public release.
 
@@ -172,3 +172,9 @@ Search results and source references are deduplicated by normalized URL, includi
 ### v0.5.5-dev notes
 
 Manual backups default to the project's `Sauvegardes` directory when it is writable; the save dialog still allows another destination. On Windows, the app requests per-monitor DPI awareness before creating the Tkinter window to reduce blur caused by OS bitmap scaling. This must be confirmed on the target Windows display settings. Keeping backups beside the app is convenient but is not a substitute for a copy on another drive.
+## Interface nouvelle (v0.7.18)
+- case Plan à côté de Recherche Internet dans les contrôles du chat
+- mode plan : agent de planification local, OFF par défaut
+- base documentaire par défaut (15 passages) incluse
+- lancement sans pop CMD cachée
+- rappel textuel redondant retiré des paramètres
